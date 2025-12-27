@@ -10,9 +10,16 @@
     <body>
         <header><h1>Bingo Creator</h1></header>
         <main>
-            <p class="created">Created: <output>...</output></p>
+            <p class="created">
+                Created: <output id="createddate">...</output>
+            </p>
             <table id="bingo"></table>
             <p class="emptymsg">Create new bingo!</p>
+            <hr />
+            <div class="words">
+                <p>Words: <output id="wordcount">0</output></p>
+                <button id="changewords">Change words</button>
+            </div>
             <button id="createnew">Create new</button>
         </main>
         <footer>

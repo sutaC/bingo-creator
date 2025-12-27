@@ -19,3 +19,18 @@ body {
 main {
     flex-grow: 1;
 }
+
+.emptymsg {
+    display: none;
+}
+table#bingo:empty ~ .emptymsg {
+    display: block;
+}
+
+table#bingo {
+    margin: auto;
+}
+
+table#bingo td {
+    border: 1px solid #000;
+}
