@@ -15,6 +15,15 @@ const elt_changewords = /** @type {HTMLButtonElement} */ (
 const elt_wordcount = /** @type {HTMLOutputElement} */ (
     document.getElementById("wordcount")
 );
+const elt_words = /** @type {HTMLTextAreaElement} */ (
+    document.getElementById("words")
+);
+const elt_savewords = /** @type {HTMLButtonElement} */ (
+    document.getElementById("savewords")
+);
+const elt_editwords = /** @type {HTMLDialogElement} */ (
+    document.getElementById("editwords")
+);
 // --- globals
 /**
  * Words in a pool
@@ -23,14 +32,12 @@ const elt_wordcount = /** @type {HTMLOutputElement} */ (
 let words = [];
 /**
  * Bingo table
- * len - 25
- * @type {string[]}
+ * length - 25
+ * @type {string[] | null}
  */
-let bingo = Array(25);
+let bingo = null;
 /**
  * Time of creation of bingo table
- * - null = none
- * - Date = time
  * @type {Date | null}
  */
 let created = null;
@@ -39,33 +46,49 @@ const update_display = () => {
     elt_wordcount.innerText = words.length.toString();
     elt_craateddate.innerText =
         created === null ? "..." : created.toISOString();
-    // fills bingo table
+    elt_words.value = words.join("\n");
     elt_bingo.innerHTML = "";
-    for (let i = 0; i < 5; i++) {
-        const row = document.createElement("tr");
-        for (let j = i * 5; j < (i + 1) * 5; j++) {
-            const cell = document.createElement("td");
-            cell.innerText = bingo[j];
-            row.appendChild(cell);
+    if (bingo !== null) {
+        for (let i = 0; i < 5; i++) {
+            const row = document.createElement("tr");
+            for (let j = i * 5; j < (i + 1) * 5; j++) {
+                const cell = document.createElement("td");
+                cell.innerText = bingo[j];
+                row.appendChild(cell);
+            }
+            elt_bingo.appendChild(row);
         }
-        elt_bingo.appendChild(row);
     }
 };
 const create_bingo = () => {
     const left_words = [...words];
     const new_bingo = Array(25);
     for (let i = 0; i < new_bingo.length; i++) {
-        const idx = Math.floor(Math.random() * (left_words.length - 1));
+        const idx = Math.round(Math.random() * (left_words.length - 1));
         new_bingo[i] = left_words.splice(idx, 1)[0];
     }
     bingo = new_bingo;
     created = new Date();
 };
-// --- bindings
+// --- listeners
 elt_createnew.addEventListener("click", (e) => {
     if (words.length < 25) return alert("Should have at least 25 words!");
     if (!confirm("Create new?")) return;
     create_bingo();
+    update_display();
+});
+elt_changewords.addEventListener("click", (e) => {
+    elt_editwords.showModal();
+});
+elt_savewords.addEventListener("click", (e) => {
+    const new_words = [];
+    for (let w of elt_words.value.split("\n")) {
+        w = w.trim();
+        if (!w) continue;
+        new_words.push(w);
+    }
+    words = new_words;
+    elt_editwords.close();
     update_display();
 });
 // --- start
@@ -108,5 +131,4 @@ words = [
     "abba",
     "abba",
 ];
-create_bingo();
 update_display();

@@ -16,11 +16,15 @@
             <table id="bingo"></table>
             <p class="emptymsg">Create new bingo!</p>
             <hr />
-            <div class="words">
-                <p>Words: <output id="wordcount">0</output></p>
-                <button id="changewords">Change words</button>
-            </div>
+            <p>Words: <output id="wordcount">0</output></p>
+            <button id="changewords">Change words</button>
             <button id="createnew">Create new</button>
+            <dialog id="editwords">
+                <h2>Words</h2>
+                <small>Words separated by new lines</small>
+                <textarea id="words" rows="10"></textarea>
+                <button id="savewords">Save</button>
+            </dialog>
         </main>
         <footer>
             By:

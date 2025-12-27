@@ -34,3 +34,17 @@ table#bingo {
 table#bingo td {
     border: 1px solid #000;
 }
+
+dialog#editwords:open {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+dialog#editwords * {
+    margin: 0;
+}
+
+dialog#editwords textarea {
+    resize: none;
+}
