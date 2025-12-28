@@ -33,6 +33,11 @@ table#bingo {
 
 table#bingo td {
     border: 1px solid #000;
+    cursor: pointer;
+}
+
+.checked {
+    background-color: greenyellow;
 }
 
 dialog#editwords:open {

@@ -41,6 +41,12 @@ let bingo = null;
  * @type {Date | null}
  */
 let created = null;
+/**
+ * Bingo checked boxes
+ * length - 25
+ * @type {boolean[] | null}
+ */
+let checked = null;
 // --- functions
 const update_display = () => {
     elt_wordcount.innerText = words.length.toString();
@@ -54,6 +60,15 @@ const update_display = () => {
             for (let j = i * 5; j < (i + 1) * 5; j++) {
                 const cell = document.createElement("td");
                 cell.innerText = bingo[j];
+                if (checked !== null && checked[j])
+                    cell.classList.add("checked");
+                else cell.classList.remove("checked");
+                cell.addEventListener("click", (e) => {
+                    if (checked === null) return;
+                    checked[j] = !checked[j];
+                    if (checked[j]) cell.classList.add("checked");
+                    else cell.classList.remove("checked");
+                });
                 row.appendChild(cell);
             }
             elt_bingo.appendChild(row);
@@ -68,6 +83,7 @@ const create_bingo = () => {
         new_bingo[i] = left_words.splice(idx, 1)[0];
     }
     bingo = new_bingo;
+    checked = Array(25).fill(false);
     created = new Date();
 };
 // --- listeners
