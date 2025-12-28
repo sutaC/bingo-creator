@@ -24,6 +24,12 @@ const elt_savewords = /** @type {HTMLButtonElement} */ (
 const elt_editwords = /** @type {HTMLDialogElement} */ (
     document.getElementById("editwords")
 );
+const elt_clearbingo = /** @type {HTMLButtonElement} */ (
+    document.getElementById("clearbingo")
+);
+const elt_copywords = /** @type {HTMLButtonElement} */ (
+    document.getElementById("copywords")
+);
 // --- globals
 /**
  * @typedef {object} SaveData
@@ -162,6 +168,19 @@ elt_savewords.addEventListener("click", (e) => {
     elt_editwords.close();
     upload_savedata();
     update_display();
+});
+elt_clearbingo.addEventListener("click", (e) => {
+    if (!confirm("Clear current bingo?")) return;
+    bingo = null;
+    checked = null;
+    created = null;
+    upload_savedata();
+    update_display();
+});
+elt_copywords.addEventListener("click", async (e) => {
+    const wordsstring = elt_words.value.toString();
+    await navigator.clipboard.writeText(wordsstring);
+    alert("Copied words to clipboard!");
 });
 // --- start
 download_savedata();
