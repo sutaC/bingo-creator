@@ -26,6 +26,13 @@ const elt_editwords = /** @type {HTMLDialogElement} */ (
 );
 // --- globals
 /**
+ * @typedef {object} SaveData
+ * @prop {string[]} words
+ * @prop {string[] | null} bingo
+ * @prop {boolean[] | null} checked
+ * @prop {string | null} created
+ */
+/**
  * Words in a pool
  * @type {string[]}
  */
@@ -68,6 +75,7 @@ const update_display = () => {
                     checked[j] = !checked[j];
                     if (checked[j]) cell.classList.add("checked");
                     else cell.classList.remove("checked");
+                    upload_savedata();
                 });
                 row.appendChild(cell);
             }
@@ -86,11 +94,58 @@ const create_bingo = () => {
     checked = Array(25).fill(false);
     created = new Date();
 };
+const upload_savedata = () => {
+    /** @type {SaveData} */
+    const savedata = {
+        bingo,
+        checked,
+        created: created === null ? null : created.toISOString(),
+        words,
+    };
+    const savestring = btoa(JSON.stringify(savedata));
+    localStorage.setItem("savedata", savestring);
+};
+const download_savedata = () => {
+    const savestring = localStorage.getItem("savedata");
+    if (savestring === null) return console.warn("Did not find any saved data");
+    /** @type {SaveData} */
+    let savedata;
+    try {
+        savedata = JSON.parse(atob(savestring));
+        if (typeof savedata !== "object")
+            throw TypeError("Given data is not type of object", {
+                cause: savedata,
+            });
+    } catch (err) {
+        console.error("Could not read saved data:", err);
+        localStorage.removeItem("savedata");
+        return;
+    }
+    bingo = savedata?.bingo ?? null;
+    if (bingo !== null && !Array.isArray(bingo)) {
+        console.error("Invalid `bingo` value: ", bingo);
+        bingo = null;
+    }
+    checked = savedata?.checked ?? null;
+    if (checked !== null && !Array.isArray(checked)) {
+        console.error("Invalid `checked` value: ", checked);
+        checked = null;
+    }
+    words = savedata?.words ?? [];
+    if (!Array.isArray(words)) {
+        console.error("Invalid `words` value: ", words);
+        words = [];
+    }
+    const datestring = savedata?.created ?? null;
+    created = datestring === null ? null : new Date(datestring.toString());
+    console.log("Downloaded saved data");
+};
 // --- listeners
 elt_createnew.addEventListener("click", (e) => {
     if (words.length < 25) return alert("Should have at least 25 words!");
     if (!confirm("Create new?")) return;
     create_bingo();
+    upload_savedata();
     update_display();
 });
 elt_changewords.addEventListener("click", (e) => {
@@ -105,46 +160,10 @@ elt_savewords.addEventListener("click", (e) => {
     }
     words = new_words;
     elt_editwords.close();
+    upload_savedata();
     update_display();
 });
 // --- start
-// test words
-words = [
-    "abba",
-    "abba",
-    "abba",
-    "baab",
-    "baab",
-    "baab",
-    "baab",
-    "baab",
-    "baab",
-    "baab",
-    "baab",
-    "baab",
-    "baab",
-    "baab",
-    "baab",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-    "abba",
-];
+download_savedata();
+upload_savedata();
 update_display();
