@@ -152,12 +152,12 @@ const download_savedata = () => {
         return;
     }
     bingo = savedata?.bingo ?? null;
-    if (bingo !== null || !Array.isArray(bingo)) {
+    if (bingo !== null && !Array.isArray(bingo)) {
         console.error("Invalid `bingo` value: ", bingo);
         bingo = null;
     }
     checked = savedata?.checked ?? null;
-    if (checked !== null || !Array.isArray(checked)) {
+    if (checked !== null && !Array.isArray(checked)) {
         console.error("Invalid `checked` value: ", checked);
         checked = null;
     }
