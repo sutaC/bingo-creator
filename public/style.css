@@ -155,3 +155,16 @@ dialog#editwords textarea {
     color: inherit;
     font: inherit;
 }
+
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    width: 80%;
+    margin: auto;
+}
+
+.controls > button {
+    flex: 1;
+}

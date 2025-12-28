@@ -30,7 +30,13 @@ const elt_clearbingo = /** @type {HTMLButtonElement} */ (
 const elt_copywords = /** @type {HTMLButtonElement} */ (
     document.getElementById("copywords")
 );
-// --- globals
+const elt_sharebingo = /** @type {HTMLButtonElement} */ (
+    document.getElementById("sharebingo")
+);
+const elt_loadbingo = /** @type {HTMLButtonElement} */ (
+    document.getElementById("loadbingo")
+);
+// --- types
 /**
  * @typedef {object} SaveData
  * @prop {string[]} words
@@ -38,6 +44,10 @@ const elt_copywords = /** @type {HTMLButtonElement} */ (
  * @prop {boolean[] | null} checked
  * @prop {string | null} created
  */
+/**
+ * @typedef {string[]} ShareableData
+ */
+// --- globals
 /**
  * Words in a pool
  * @type {string[]}
@@ -61,6 +71,23 @@ let created = null;
  */
 let checked = null;
 // --- functions
+/**
+ * Encodes data to serializable string
+ * @param {any} data
+ * @returns {string}
+ */
+function encode(data) {
+    return btoa(encodeURI(JSON.stringify(data)));
+}
+/**
+ * Decodes data from serialized string
+ * @param {string} str
+ * @throws {SyntaxError} - if `str` is not in valid json
+ * @returns {any}
+ */
+function decode(str) {
+    return JSON.parse(decodeURI(atob(str)));
+}
 const update_display = () => {
     elt_wordcount.innerText = words.length.toString();
     elt_craateddate.innerText =
@@ -105,7 +132,7 @@ const upload_savedata = () => {
         created: created === null ? null : created.toISOString(),
         words,
     };
-    const savestring = btoa(encodeURI(JSON.stringify(savedata)));
+    const savestring = encode(savedata);
     localStorage.setItem("savedata", savestring);
 };
 const download_savedata = () => {
@@ -114,7 +141,7 @@ const download_savedata = () => {
     /** @type {SaveData} */
     let savedata;
     try {
-        savedata = JSON.parse(decodeURI(atob(savestring)));
+        savedata = decode(savestring);
         if (typeof savedata !== "object")
             throw TypeError("Given data is not type of object", {
                 cause: savedata,
@@ -125,12 +152,12 @@ const download_savedata = () => {
         return;
     }
     bingo = savedata?.bingo ?? null;
-    if (bingo !== null && !Array.isArray(bingo)) {
+    if (bingo !== null || !Array.isArray(bingo)) {
         console.error("Invalid `bingo` value: ", bingo);
         bingo = null;
     }
     checked = savedata?.checked ?? null;
-    if (checked !== null && !Array.isArray(checked)) {
+    if (checked !== null || !Array.isArray(checked)) {
         console.error("Invalid `checked` value: ", checked);
         checked = null;
     }
@@ -178,6 +205,30 @@ elt_copywords.addEventListener("click", async (e) => {
     const wordsstring = elt_words.value.toString();
     await navigator.clipboard.writeText(wordsstring);
     alert("Copied words to clipboard!");
+});
+elt_sharebingo.addEventListener("click", async (e) => {
+    if (bingo === null) return alert("You need to create bingo at first");
+    const sharestr = encode(bingo);
+    await navigator.clipboard.writeText(sharestr);
+    alert("Your bingo was copied to your clipboard!");
+});
+elt_loadbingo.addEventListener("click", (e) => {
+    const sharestr = prompt(
+        "Paste shared bingo card here:\n(It will overwrite your current bingo!)"
+    );
+    if (!sharestr) return;
+    let newbingo;
+    try {
+        newbingo = decode(sharestr);
+        if (!Array.isArray(newbingo) || newbingo.length !== 25)
+            throw TypeError("Invalid data type provided", { cause: newbingo });
+    } catch (err) {
+        return alert("Invalid bingo card was provided...");
+    }
+    create_bingo();
+    bingo = newbingo;
+    upload_savedata();
+    update_display();
 });
 // --- start
 download_savedata();
