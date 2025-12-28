@@ -3,7 +3,7 @@
 const elt_createnew = /** @type {HTMLButtonElement} */ (
     document.getElementById("createnew")
 );
-const elt_bingo = /** @type {HTMLTableElement} */ (
+const elt_bingo = /** @type {HTMLDivElement} */ (
     document.getElementById("bingo")
 );
 const elt_craateddate = /** @type {HTMLOutputElement} */ (
@@ -68,24 +68,21 @@ const update_display = () => {
     elt_words.value = words.join("\n");
     elt_bingo.innerHTML = "";
     if (bingo !== null) {
-        for (let i = 0; i < 5; i++) {
-            const row = document.createElement("tr");
-            for (let j = i * 5; j < (i + 1) * 5; j++) {
-                const cell = document.createElement("td");
-                cell.innerText = bingo[j];
-                if (checked !== null && checked[j])
-                    cell.classList.add("checked");
-                else cell.classList.remove("checked");
-                cell.addEventListener("click", (e) => {
-                    if (checked === null) return;
-                    checked[j] = !checked[j];
-                    if (checked[j]) cell.classList.add("checked");
-                    else cell.classList.remove("checked");
-                    upload_savedata();
-                });
-                row.appendChild(cell);
-            }
-            elt_bingo.appendChild(row);
+        for (let i = 0; i < bingo.length; i++) {
+            const card = document.createElement("div");
+            card.innerText = bingo[i];
+            card.title = bingo[i];
+            card.classList.add("card");
+            if (checked !== null && checked[i]) card.classList.add("checked");
+            else card.classList.remove("checked");
+            card.addEventListener("click", (e) => {
+                if (checked === null) return;
+                checked[i] = !checked[i];
+                if (checked[i]) card.classList.add("checked");
+                else card.classList.remove("checked");
+                upload_savedata();
+            });
+            elt_bingo.appendChild(card);
         }
     }
 };
@@ -108,7 +105,7 @@ const upload_savedata = () => {
         created: created === null ? null : created.toISOString(),
         words,
     };
-    const savestring = btoa(JSON.stringify(savedata));
+    const savestring = btoa(encodeURI(JSON.stringify(savedata)));
     localStorage.setItem("savedata", savestring);
 };
 const download_savedata = () => {
@@ -117,7 +114,7 @@ const download_savedata = () => {
     /** @type {SaveData} */
     let savedata;
     try {
-        savedata = JSON.parse(atob(savestring));
+        savedata = JSON.parse(decodeURI(atob(savestring)));
         if (typeof savedata !== "object")
             throw TypeError("Given data is not type of object", {
                 cause: savedata,
